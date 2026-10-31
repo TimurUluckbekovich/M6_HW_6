@@ -12,12 +12,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-IS_PRODUCTION = os.getenv("PRODUCTION", "False").lower() == "true"
-
-if IS_PRODUCTION:
-    from core.settings.production import *
-else:
-    from core.settings.development import *
 
 THEME_APPS = [
     'jazzmin',
@@ -220,16 +214,15 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Bishkek'
 
 
+
 CELERY_BEAT_SCHEDULE = {
-    # Задача 1: Запускается каждые 5 минут
-    'run-stats-every-5-minutes': {
-        'task': 'apps.testapp.tasks.monthly_user_stats_task',
-        'schedule': 300.0, # Каждые 300 секунд
+    'send-daily-admin-report-every-10-minutes': {
+        'task': 'apps.testapp.tasks.send_daily_admin_report_task',
+        'schedule': 600.0,
     },
-    
-    # Задача 2: Запускается каждый день в 00:00 (Полезно для рассылок/отчетов)
-    'run-daily-midnight-task': {
-        'task': 'apps.testapp.tasks.monthly_user_stats_task',
-        'schedule': crontab(hour=0, minute=0),
+
+    'send-daily-admin-report-at-9': {
+        'task': 'apps.testapp.tasks.send_daily_admin_report_task',
+        'schedule': crontab(hour=9, minute=0),
     },
 }

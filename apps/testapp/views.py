@@ -12,6 +12,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.cache import cache
 from apps.testapp.tasks import User
+from apps.testapp.tasks import send_welcome_email_task
 
 from apps.testapp.serializers import CustomTokenObtainPairSerializer, GoogleAuthSerializer, RegisterSerializer, UserProfileSerializer
 
@@ -38,6 +39,10 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            
+            # 🚀 Запускаем фоновую задачу отправки письма через .delay()
+            send_welcome_email_task.delay(user.email)
+            
             return Response(
                 {
                     "message": "Пользователь успешно зарегистрирован!",
